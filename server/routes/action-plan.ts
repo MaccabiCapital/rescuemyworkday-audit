@@ -78,9 +78,19 @@ Sort items by priority (critical first), then by impact score descending. Only r
     const text =
       message.content[0].type === "text" ? message.content[0].text : "";
 
-    // Parse JSON — strip markdown fences if present
-    const cleaned = text.replace(/^```json?\n?/m, "").replace(/\n?```$/m, "");
-    const plan = JSON.parse(cleaned);
+    // Extract JSON — try fenced block first, then first { to last }
+    let jsonStr = text;
+    const fenced = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (fenced) {
+      jsonStr = fenced[1];
+    } else {
+      const start = text.indexOf("{");
+      const end = text.lastIndexOf("}");
+      if (start !== -1 && end > start) {
+        jsonStr = text.slice(start, end + 1);
+      }
+    }
+    const plan = JSON.parse(jsonStr);
 
     res.json(plan);
   } catch (err: any) {
