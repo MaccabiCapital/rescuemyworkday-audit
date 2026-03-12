@@ -37,6 +37,7 @@ export interface UnifiedAuditResult {
   actionPlan: null;
   executiveSummary: null;
   contentAnalysis: ContentAnalysis;
+  businessImpact: BusinessImpact | null;
   raw: RawEngineOutputs;
 }
 
@@ -204,6 +205,34 @@ export interface NativePortCheck {
 
 export interface NativePortResult {
   checks: NativePortCheck[];
+}
+
+export interface MissedKeyword {
+  keyword: string;
+  position: number;
+  searchVolume: number;
+  cpc: number;
+  missedClicks: number;
+  missedValue: number;
+}
+
+export interface BusinessImpactAssumptions {
+  industry: string;
+  conversionRate: number;
+  avgOrderValue: number;
+  conversionRationale: string;
+  avgOrderRationale: string;
+}
+
+export interface BusinessImpact {
+  missedTrafficValue: number;
+  estimatedLostRevenue: number;
+  topMissedKeywords: MissedKeyword[];
+  assumptions: BusinessImpactAssumptions;
+  dataConfidence: {
+    trafficValue: "high";
+    lostRevenue: "estimated";
+  };
 }
 
 export interface ActionPlanItem {

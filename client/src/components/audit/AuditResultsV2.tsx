@@ -6,6 +6,7 @@ import { DimensionBreakdown } from "./DimensionBreakdown";
 import { FindingsList } from "./FindingsList";
 import { SecurityFindings } from "./SecurityFindings";
 import { IntelligenceInsights } from "./IntelligenceInsights";
+import { BusinessImpactSection } from "./BusinessImpactSection";
 import { ActionPlanSection } from "./ActionPlanSection";
 import { motion } from "framer-motion";
 import { BarChart3, Wrench } from "lucide-react";
@@ -96,6 +97,9 @@ export default function AuditResultsV2({ result }: Props) {
               <DimensionBreakdown result={result} />
               <FindingsList findings={result.findings} />
               <SecurityFindings findings={result.findings} />
+              {result.businessImpact && (
+                <BusinessImpactSection impact={result.businessImpact} />
+              )}
               <IntelligenceInsights intelligence={result.intelligence} />
             </div>
           )}
