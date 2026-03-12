@@ -4,7 +4,7 @@ import type { UnifiedAuditResult } from "../components/audit/types";
 export type AuditState =
   | { status: "idle" }
   | { status: "submitting" }
-  | { status: "polling"; auditId: string; progress?: string }
+  | { status: "polling"; auditId: string; pollCount: number; progress?: string }
   | { status: "complete"; result: UnifiedAuditResult }
   | { status: "error"; message: string };
 
@@ -38,7 +38,7 @@ export function useAudit() {
       }
 
       const { auditId } = await resp.json();
-      setState({ status: "polling", auditId });
+      setState({ status: "polling", auditId, pollCount: 0 });
 
       // Step 2: Poll for results
       for (let i = 0; i < MAX_POLLS; i++) {
@@ -64,7 +64,8 @@ export function useAudit() {
         }
 
         // Still running — update progress
-        setState({ status: "polling", auditId, progress: data.progress });
+        const progressStr = typeof data.progress === "string" ? data.progress : undefined;
+        setState({ status: "polling", auditId, pollCount: i + 1, progress: progressStr });
       }
 
       // Timed out

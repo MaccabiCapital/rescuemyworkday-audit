@@ -54,6 +54,7 @@ export default function App() {
     return (
       <AuditProgress
         status={state.status}
+        pollCount={state.status === "polling" ? state.pollCount : 0}
         progress={state.status === "polling" ? state.progress : undefined}
       />
     );
