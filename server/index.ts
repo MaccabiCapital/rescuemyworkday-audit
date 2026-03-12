@@ -18,7 +18,7 @@ const clientDir = path.join(__dirname, "../client");
 app.use(express.static(clientDir));
 
 // SPA fallback — serve index.html for all non-API routes
-app.get("*", (_req, res) => {
+app.get("/{*splat}", (_req, res) => {
   res.sendFile(path.join(clientDir, "index.html"));
 });
 
