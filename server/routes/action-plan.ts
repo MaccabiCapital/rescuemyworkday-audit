@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const router = Router();
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 
 let anthropic: Anthropic | null = null;
 function getClient() {
@@ -14,6 +14,11 @@ function getClient() {
 }
 
 router.post("/", async (req: Request, res: Response) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    res.status(500).json({ error: "Action plan unavailable — ANTHROPIC_API_KEY not configured" });
+    return;
+  }
+
   const { url, domain, overallScore, categories } = req.body;
 
   if (!url || !domain || overallScore == null || !categories) {
@@ -21,9 +26,14 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
+  if (!Array.isArray(categories) || categories.length === 0) {
+    res.status(400).json({ error: "No category data available to generate action plan" });
+    return;
+  }
+
   try {
     const failingSignals = categories
-      .flatMap((cat: any) => cat.signals)
+      .flatMap((cat: any) => cat.signals || [])
       .filter(
         (s: any) => s.status === "fail" || s.status === "warning",
       );
@@ -74,8 +84,15 @@ Sort items by priority (critical first), then by impact score descending. Only r
 
     res.json(plan);
   } catch (err: any) {
-    console.error("[action-plan] Error:", err);
-    res.status(500).json({ error: "Failed to generate action plan" });
+    console.error("[action-plan] Error:", err?.message || err);
+    const msg = err?.status === 401
+      ? "Invalid Anthropic API key"
+      : err?.status === 429
+        ? "Rate limited — try again in a moment"
+        : err?.message?.includes("JSON")
+          ? "AI returned invalid response — try again"
+          : "Failed to generate action plan";
+    res.status(500).json({ error: msg });
   }
 });
 

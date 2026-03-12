@@ -27,6 +27,11 @@ export function ActionPlanSection({
     setLoading(true);
     setError("");
     try {
+      const categories = result.raw?.rescue?.categories;
+      if (!categories || categories.length === 0) {
+        throw new Error("No audit category data available for action plan generation");
+      }
+
       const response = await fetch("/api/action-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,7 +39,7 @@ export function ActionPlanSection({
           url: result.meta.url,
           domain: result.meta.domain,
           overallScore: result.score.overall,
-          categories: result.raw.rescue.categories,
+          categories,
         }),
       });
 
