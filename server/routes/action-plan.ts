@@ -46,51 +46,30 @@ ${failingSignals.map((s: any) => `- ${s.name}: ${s.detail} (${s.status}, ${s.poi
 Categories:
 ${categories.map((c: any) => `- ${c.name}: ${c.score}/${c.maxPoints}`).join("\n")}
 
-Return a JSON object with:
-{
-  "summary": "2-3 sentence executive summary of the site's biggest opportunities",
-  "items": [
-    {
-      "signalName": "Signal Name",
-      "priority": "critical|high|medium|low",
-      "category": "Category Name",
-      "whatIsWrong": "Clear description of the issue",
-      "howToFix": "Step-by-step fix instructions",
-      "codeExample": "Optional code snippet if applicable",
-      "estimatedTime": "e.g. '15 minutes', '1-2 hours'",
-      "impactScore": 1-5,
-      "difficultyScore": 1-5,
-      "scoreImpact": estimated_points_gained,
-      "businessBenefit": "Why this matters for the business"
-    }
-  ]
-}
+Return a JSON object (no markdown, no code fences) with this exact schema:
+{"summary":"string","items":[{"signalName":"string","priority":"critical|high|medium|low","category":"string","whatIsWrong":"string","howToFix":"string","estimatedTime":"string","impactScore":1,"difficultyScore":1,"scoreImpact":1,"businessBenefit":"string"}]}
 
-Sort items by priority (critical first), then by impact score descending. Only return valid JSON, no markdown.`;
+Sort items by priority (critical first), then by impact score descending.`;
 
     const client = getClient();
     const message = await client.messages.create({
       model: MODEL,
       max_tokens: 4096,
+      system: "You are a JSON API. Return ONLY a raw JSON object. No markdown fences, no explanatory text, no backticks. Start with { and end with }.",
       messages: [{ role: "user", content: prompt }],
     });
 
     const text =
       message.content[0].type === "text" ? message.content[0].text : "";
 
-    // Extract JSON — try fenced block first, then first { to last }
-    let jsonStr = text;
-    const fenced = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-    if (fenced) {
-      jsonStr = fenced[1];
-    } else {
-      const start = text.indexOf("{");
-      const end = text.lastIndexOf("}");
-      if (start !== -1 && end > start) {
-        jsonStr = text.slice(start, end + 1);
-      }
+    // Extract JSON — find first { to last }
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start === -1 || end <= start) {
+      console.error("[action-plan] No JSON object found in response:", text.slice(0, 200));
+      throw new Error("JSON");
     }
-    const plan = JSON.parse(jsonStr);
+    const plan = JSON.parse(text.slice(start, end + 1));
 
     res.json(plan);
   } catch (err: any) {
