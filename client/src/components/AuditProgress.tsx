@@ -1,35 +1,28 @@
-import { AlertCircle, RefreshCw, Check, Globe, Search, Bot, BarChart3 } from "lucide-react";
+import { AlertCircle, RefreshCw, Check, Globe, Search, Bot, BarChart3, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { AuditProgress as ProgressData } from "@/hooks/useAudit";
 
 interface Props {
   status: "submitting" | "polling";
   pollCount?: number;
-  progress?: string;
+  progress?: ProgressData;
   error?: string;
   onRetry?: () => void;
 }
 
 const STAGES = [
-  { label: "Connecting to audit engine", icon: Globe, pollRange: [0, 0] },
-  { label: "Crawling website & analyzing SEO", icon: Search, pollRange: [1, 8] },
-  { label: "Running AI readiness checks", icon: Bot, pollRange: [9, 18] },
-  { label: "Calculating scores & generating report", icon: BarChart3, pollRange: [19, 60] },
+  { label: "Connecting to audit engine", icon: Globe, percentRange: [0, 15] },
+  { label: "Crawling website & analyzing SEO", icon: Search, percentRange: [15, 45] },
+  { label: "Analyzing business impact", icon: Bot, percentRange: [45, 70] },
+  { label: "Computing scores", icon: BarChart3, percentRange: [70, 90] },
+  { label: "Generating report", icon: FileText, percentRange: [90, 100] },
 ] as const;
 
-function getStageIndex(status: string, pollCount: number): number {
-  if (status === "submitting") return 0;
+function getStageIndex(percent: number): number {
   for (let i = STAGES.length - 1; i >= 0; i--) {
-    if (pollCount >= STAGES[i].pollRange[0]) return i;
+    if (percent >= STAGES[i].percentRange[0]) return i;
   }
   return 0;
-}
-
-function getProgressPercent(status: string, pollCount: number): number {
-  if (status === "submitting") return 5;
-  // Asymptotic progress: fast at first, slows down, never reaches 100
-  // Typical audit takes ~20 polls (60s), show ~85% by then
-  const elapsed = pollCount * 3; // seconds
-  return Math.min(95, 5 + 90 * (1 - Math.exp(-elapsed / 50)));
 }
 
 export function AuditProgress({ status, pollCount = 0, progress, error, onRetry }: Props) {
@@ -48,8 +41,11 @@ export function AuditProgress({ status, pollCount = 0, progress, error, onRetry 
     );
   }
 
-  const currentStage = getStageIndex(status, pollCount);
-  const percent = getProgressPercent(status, pollCount);
+  // Use real backend percent if available, otherwise estimate from poll count
+  const percent = progress?.percent ?? (status === "submitting" ? 5 : Math.min(95, 5 + 90 * (1 - Math.exp(-(pollCount * 3) / 50))));
+  const currentStage = getStageIndex(percent);
+  const stepLabel = progress?.step;
+
   const elapsed = status === "submitting" ? 0 : pollCount * 3;
   const minutes = Math.floor(elapsed / 60);
   const seconds = elapsed % 60;
@@ -67,13 +63,13 @@ export function AuditProgress({ status, pollCount = 0, progress, error, onRetry 
             Analyzing your website
           </h2>
           <p className="text-sm text-gray-500">
-            This usually takes 30-90 seconds
+            This usually takes 1-2 minutes
           </p>
         </div>
 
         {/* Progress bar */}
         <div className="space-y-2">
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${percent}%` }}
@@ -84,6 +80,13 @@ export function AuditProgress({ status, pollCount = 0, progress, error, onRetry 
             <span>{timeStr} elapsed</span>
           </div>
         </div>
+
+        {/* Current step from backend */}
+        {stepLabel && (
+          <p className="text-center text-sm text-blue-600 font-medium -mt-4">
+            {stepLabel}
+          </p>
+        )}
 
         {/* Stage checklist */}
         <div className="space-y-3">
@@ -126,7 +129,6 @@ export function AuditProgress({ status, pollCount = 0, progress, error, onRetry 
                   }`}
                 >
                   {stage.label}
-                  {isDone && <span className="text-green-600 ml-1">&check;</span>}
                 </span>
               </div>
             );

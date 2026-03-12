@@ -211,28 +211,20 @@ export interface MissedKeyword {
   keyword: string;
   position: number;
   searchVolume: number;
-  cpc: number;
   missedClicks: number;
-  missedValue: number;
 }
 
 export interface BusinessImpactAssumptions {
   industry: string;
   conversionRate: number;
-  avgOrderValue: number;
   conversionRationale: string;
-  avgOrderRationale: string;
 }
 
 export interface BusinessImpact {
-  missedTrafficValue: number;
-  estimatedLostRevenue: number;
+  missedVisitors: number;
+  missedSales: number;
   topMissedKeywords: MissedKeyword[];
   assumptions: BusinessImpactAssumptions;
-  dataConfidence: {
-    trafficValue: "high";
-    lostRevenue: "estimated";
-  };
 }
 
 export interface ActionPlanItem {

@@ -6,14 +6,14 @@ interface Props {
   impact: BusinessImpact;
 }
 
-function fmt(value: number): string {
-  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
-  if (value >= 1_000) return `$${Math.round(value / 1_000)}K`;
-  return `$${value.toFixed(0)}`;
+function fmtNum(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+  return value.toLocaleString();
 }
 
 export function BusinessImpactPage({ impact }: Props) {
-  const annualLost = impact.estimatedLostRevenue * 12;
+  const annualSales = impact.missedSales * 12;
   const hasKeywords = impact.topMissedKeywords.length > 0;
 
   return (
@@ -24,10 +24,10 @@ export function BusinessImpactPage({ impact }: Props) {
 
       <Text style={[styles.bodyText, { marginBottom: 16, lineHeight: 1.7 }]}>
         People are searching for exactly what you offer — but finding your
-        competitors instead. Here's what that's costing you right now.
+        competitors instead. Here's what you're missing out on right now.
       </Text>
 
-      {/* Big revenue number */}
+      {/* Big sales number */}
       <View
         style={{
           backgroundColor: "#FEF2F2",
@@ -49,7 +49,7 @@ export function BusinessImpactPage({ impact }: Props) {
             letterSpacing: 1,
           }}
         >
-          Estimated Revenue You're Missing
+          Sales You're Missing
         </Text>
         <Text
           style={{
@@ -58,7 +58,7 @@ export function BusinessImpactPage({ impact }: Props) {
             color: "#DC2626",
           }}
         >
-          {fmt(impact.estimatedLostRevenue)}/month
+          {fmtNum(impact.missedSales)} /month
         </Text>
         <Text
           style={{
@@ -67,7 +67,7 @@ export function BusinessImpactPage({ impact }: Props) {
             marginTop: 4,
           }}
         >
-          That's approximately {fmt(annualLost)} per year
+          That's approximately {fmtNum(annualSales)} sales per year
         </Text>
         <Text
           style={{
@@ -77,7 +77,7 @@ export function BusinessImpactPage({ impact }: Props) {
             fontStyle: "italic",
           }}
         >
-          Based on {impact.assumptions.industry} industry averages for your type of business
+          Based on {impact.assumptions.industry} industry conversion rates ({(impact.assumptions.conversionRate * 100).toFixed(1)}%)
         </Text>
       </View>
 
@@ -103,9 +103,8 @@ export function BusinessImpactPage({ impact }: Props) {
             MISSED WEBSITE VISITORS
           </Text>
           <Text style={{ fontSize: 9, color: "#1E3A8A", lineHeight: 1.5 }}>
-            People searching for your services click on competitors ranking
-            above you. The ad value of these missed clicks is{" "}
-            {fmt(impact.missedTrafficValue)}/mo.
+            {fmtNum(impact.missedVisitors)} people search for your services every
+            month but click on competitors ranking above you.
           </Text>
         </View>
         <View
@@ -119,12 +118,12 @@ export function BusinessImpactPage({ impact }: Props) {
           }}
         >
           <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: "#92400E", marginBottom: 4 }}>
-            HOW WE ESTIMATED REVENUE
+            HOW WE ESTIMATED SALES
           </Text>
           <Text style={{ fontSize: 9, color: "#78350F", lineHeight: 1.5 }}>
             We applied a {(impact.assumptions.conversionRate * 100).toFixed(1)}%
-            conversion rate and {fmt(impact.assumptions.avgOrderValue)} avg.
-            transaction value typical for {impact.assumptions.industry} businesses.
+            conversion rate typical for {impact.assumptions.industry} businesses
+            to calculate missed sales from those visitors.
           </Text>
         </View>
       </View>
@@ -150,10 +149,7 @@ export function BusinessImpactPage({ impact }: Props) {
               Monthly{"\n"}Searches
             </Text>
             <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: "right" }]}>
-              Clicks You're{"\n"}Missing
-            </Text>
-            <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: "right" }]}>
-              Revenue{"\n"}Lost
+              Visitors You're{"\n"}Missing
             </Text>
           </View>
 
@@ -171,16 +167,13 @@ export function BusinessImpactPage({ impact }: Props) {
               <Text style={[styles.tableCell, { flex: 1.5, textAlign: "right" }]}>
                 {kw.searchVolume.toLocaleString()}
               </Text>
-              <Text style={[styles.tableCell, { flex: 1.5, textAlign: "right" }]}>
-                {kw.missedClicks.toLocaleString()}
-              </Text>
               <Text
                 style={[
                   styles.tableCellBold,
                   { flex: 1.5, textAlign: "right", color: "#DC2626" },
                 ]}
               >
-                {fmt(kw.missedValue)}
+                {kw.missedClicks.toLocaleString()}
               </Text>
             </View>
           ))}
@@ -190,10 +183,9 @@ export function BusinessImpactPage({ impact }: Props) {
       {/* Disclaimer */}
       <View style={{ marginTop: 14 }}>
         <Text style={{ fontSize: 7, color: "#9CA3AF", lineHeight: 1.5, fontStyle: "italic" }}>
-          Revenue estimates use industry averages for {impact.assumptions.industry}{" "}
-          businesses. Your actual results will depend on your pricing, conversion
-          rate, and customer value. The keyword ranking data is real — pulled from
-          Google's search results.
+          Visitor counts are based on real Google ranking data. Sales estimates use
+          industry-average conversion rates for {impact.assumptions.industry} businesses.
+          Your actual results will depend on your website, sales process, and customer value.
         </Text>
       </View>
 

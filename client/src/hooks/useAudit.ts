@@ -1,10 +1,15 @@
 import { useState, useCallback, useRef } from "react";
 import type { UnifiedAuditResult } from "../components/audit/types";
 
+export interface AuditProgress {
+  step: string;
+  percent: number;
+}
+
 export type AuditState =
   | { status: "idle" }
   | { status: "submitting" }
-  | { status: "polling"; auditId: string; pollCount: number; progress?: string }
+  | { status: "polling"; auditId: string; pollCount: number; progress?: AuditProgress }
   | { status: "complete"; result: UnifiedAuditResult }
   | { status: "error"; message: string };
 
@@ -64,8 +69,11 @@ export function useAudit() {
         }
 
         // Still running — update progress
-        const progressStr = typeof data.progress === "string" ? data.progress : undefined;
-        setState({ status: "polling", auditId, pollCount: i + 1, progress: progressStr });
+        const prog: AuditProgress | undefined =
+          data.progress && typeof data.progress === "object" && typeof data.progress.percent === "number"
+            ? { step: data.progress.step || "Working...", percent: data.progress.percent }
+            : undefined;
+        setState({ status: "polling", auditId, pollCount: i + 1, progress: prog });
       }
 
       // Timed out
