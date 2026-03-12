@@ -24,7 +24,7 @@ function getDomain(url: string): string {
 
 // POST /api/audit — Start an audit, return auditId immediately
 router.post("/", async (req: Request, res: Response) => {
-  const { url } = req.body;
+  const { url, location } = req.body;
   if (!url || typeof url !== "string") {
     res.status(400).json({ error: "URL is required" });
     return;
@@ -39,7 +39,7 @@ router.post("/", async (req: Request, res: Response) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${WORKER_API_KEY}`,
       },
-      body: JSON.stringify({ url: normalized }),
+      body: JSON.stringify({ url: normalized, ...(location && { location }) }),
     });
 
     if (!workerResp.ok) {
