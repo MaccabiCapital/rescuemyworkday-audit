@@ -137,8 +137,8 @@ export function BusinessImpactPage({ impact }: Props) {
           </Text>
 
           <Text style={{ fontSize: 9, color: "#6B7280", marginBottom: 8, lineHeight: 1.5 }}>
-            These are real searches people make every month. You rank for them — but not
-            high enough to get the clicks.
+            These are real searches people make every month for businesses like yours.
+            You're either not ranking or not ranking high enough to get the clicks.
           </Text>
 
           <View style={styles.tableHeader}>
@@ -165,8 +165,8 @@ export function BusinessImpactPage({ impact }: Props) {
               <Text style={[styles.tableCellBold, { flex: 3 }]}>
                 "{kw.keyword}"
               </Text>
-              <Text style={[styles.tableCell, { flex: 1, textAlign: "center" }]}>
-                #{kw.position}
+              <Text style={[styles.tableCell, { flex: 1, textAlign: "center", color: kw.position === 0 ? "#DC2626" : undefined }]}>
+                {kw.position === 0 ? "—" : `#${kw.position}`}
               </Text>
               <Text style={[styles.tableCell, { flex: 1.5, textAlign: "right" }]}>
                 {kw.searchVolume.toLocaleString()}
