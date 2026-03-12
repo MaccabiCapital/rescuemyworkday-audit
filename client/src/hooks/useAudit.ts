@@ -13,7 +13,7 @@ export type AuditState =
   | { status: "complete"; result: UnifiedAuditResult }
   | { status: "error"; message: string };
 
-const MAX_POLLS = 50;
+const MAX_POLLS = 80;
 const POLL_INTERVAL = 3000;
 
 export function useAudit() {
