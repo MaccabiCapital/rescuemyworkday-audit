@@ -93,13 +93,13 @@ export default function AuditResultsV2({ result }: Props) {
                 pdfLoading={pdfLoading}
                 onDownloadPdf={handleDownloadPdf}
               />
+              {result.businessImpact && (
+                <BusinessImpactSection impact={result.businessImpact} />
+              )}
               <PillarCards result={result} />
               <DimensionBreakdown result={result} />
               <FindingsList findings={result.findings} />
               <SecurityFindings findings={result.findings} />
-              {result.businessImpact && (
-                <BusinessImpactSection impact={result.businessImpact} />
-              )}
               <IntelligenceInsights intelligence={result.intelligence} />
             </div>
           )}
