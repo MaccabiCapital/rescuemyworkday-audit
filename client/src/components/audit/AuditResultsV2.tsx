@@ -7,8 +7,6 @@ import { FindingsList } from "./FindingsList";
 import { SecurityFindings } from "./SecurityFindings";
 import { IntelligenceInsights } from "./IntelligenceInsights";
 import { ActionPlanSection } from "./ActionPlanSection";
-import { AuditPdfDocument } from "./pdf/AuditPdfDocument";
-import { usePDF } from "@react-pdf/renderer";
 import { motion } from "framer-motion";
 import { BarChart3, Wrench } from "lucide-react";
 
@@ -21,15 +19,30 @@ type ViewTab = "audit" | "action-plan";
 export default function AuditResultsV2({ result }: Props) {
   const [activeTab, setActiveTab] = useState<ViewTab>("audit");
   const [actionPlan, setActionPlan] = useState<ActionPlan | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
-  const [pdfInstance, updatePdf] = usePDF({
-    document: <AuditPdfDocument result={result} actionPlan={actionPlan} />,
-  });
-
-  const handleDownloadPdf = useCallback(() => {
-    // Re-render with latest data then trigger download
-    updatePdf(<AuditPdfDocument result={result} actionPlan={actionPlan} />);
-  }, [result, actionPlan, updatePdf]);
+  const handleDownloadPdf = useCallback(async () => {
+    setPdfLoading(true);
+    try {
+      const { pdf } = await import("@react-pdf/renderer");
+      const { AuditPdfDocument } = await import("./pdf/AuditPdfDocument");
+      const blob = await pdf(
+        <AuditPdfDocument result={result} actionPlan={actionPlan} />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+      // Auto-trigger download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `rescueaudit-${result.meta.domain}-${new Date(result.meta.auditedAt).toISOString().slice(0, 10)}.pdf`;
+      a.click();
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    } finally {
+      setPdfLoading(false);
+    }
+  }, [result, actionPlan]);
 
   return (
     <section id="audit-results" className="py-12 bg-white">
@@ -75,8 +88,8 @@ export default function AuditResultsV2({ result }: Props) {
             <div className="space-y-10">
               <ScoreOverview
                 result={result}
-                pdfUrl={pdfInstance.url}
-                pdfLoading={pdfInstance.loading}
+                pdfUrl={pdfUrl}
+                pdfLoading={pdfLoading}
                 onDownloadPdf={handleDownloadPdf}
               />
               <PillarCards result={result} />
