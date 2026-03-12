@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { UnifiedAuditResult, ActionPlan, ActionPlanItem } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,14 @@ import {
   Zap,
   ChevronDown,
 } from "lucide-react";
+
+const PLAN_STEPS = [
+  { label: "Analyzing audit findings...", target: 15 },
+  { label: "Identifying critical issues...", target: 35 },
+  { label: "Prioritizing actions by impact...", target: 55 },
+  { label: "Building fix recommendations...", target: 75 },
+  { label: "Finalizing your action plan...", target: 90 },
+];
 
 interface Props {
   result: UnifiedAuditResult;
@@ -22,10 +30,31 @@ export function ActionPlanSection({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const generatePlan = useCallback(async () => {
     setLoading(true);
     setError("");
+    setProgress(0);
+    setStepIndex(0);
+
+    // Animate progress through steps
+    let currentStep = 0;
+    let currentProgress = 0;
+    progressTimer.current = setInterval(() => {
+      const step = PLAN_STEPS[currentStep];
+      if (!step) return;
+      if (currentProgress < step.target) {
+        currentProgress += 1;
+        setProgress(currentProgress);
+      } else if (currentStep < PLAN_STEPS.length - 1) {
+        currentStep++;
+        setStepIndex(currentStep);
+      }
+    }, 200);
+
     try {
       const categories = result.raw?.rescue?.categories;
       if (!categories || categories.length === 0) {
@@ -81,7 +110,9 @@ export function ActionPlanSection({
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (progressTimer.current) clearInterval(progressTimer.current);
+      setProgress(100);
+      setTimeout(() => setLoading(false), 300);
     }
   }, [result, onPlanGenerated]);
 
@@ -92,14 +123,22 @@ export function ActionPlanSection({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Loading state
+  // Loading state with progress bar
   if (loading) {
+    const step = PLAN_STEPS[stepIndex] || PLAN_STEPS[PLAN_STEPS.length - 1];
     return (
-      <div className="flex flex-col items-center justify-center py-16">
+      <div className="flex flex-col items-center justify-center py-16 px-4">
         <Loader2 className="w-8 h-8 animate-spin text-[#0057FF] mb-4" />
-        <p className="text-sm text-gray-500">
-          Generating your personalized action plan...
+        <p className="text-sm font-medium text-gray-700 mb-2">
+          {step.label}
         </p>
+        <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 mb-2">
+          <div
+            className="bg-[#0057FF] h-2.5 rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="text-xs text-gray-400">{progress}%</p>
       </div>
     );
   }
