@@ -22,12 +22,12 @@ export function AuditPdfDocument({ result, actionPlan }: Props) {
       subject="Website Audit Report"
     >
       <CoverPage result={result} />
-      <ExecutiveSummaryPage result={result} />
-      <DimensionScorecardPage result={result} />
-      <CriticalIssuesPage result={result} />
       {result.businessImpact && (
         <BusinessImpactPage impact={result.businessImpact} />
       )}
+      <ExecutiveSummaryPage result={result} />
+      <DimensionScorecardPage result={result} />
+      <CriticalIssuesPage result={result} />
       <ActionPlanPage actionPlan={actionPlan} />
       <SecurityHealthPage findings={result.findings} />
       <MethodologyPage />

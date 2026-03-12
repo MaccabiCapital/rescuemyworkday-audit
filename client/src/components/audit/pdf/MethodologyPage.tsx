@@ -4,88 +4,115 @@ import { styles } from "./pdf-styles";
 export function MethodologyPage() {
   return (
     <Page size="A4" style={styles.page}>
-      <Text style={styles.sectionTitle}>Methodology</Text>
+      <Text style={styles.sectionTitle}>How We Audited Your Website</Text>
 
-      <Text style={styles.bodyText}>
-        RescueAudit evaluates websites using a multi-engine architecture that
-        combines automated crawling, rule-based analysis, and cross-page
-        intelligence to produce a single unified visibility score out of 100.
+      <Text style={[styles.bodyText, { lineHeight: 1.7, marginBottom: 16 }]}>
+        We used three different scanning tools to check over 250 things on your
+        website. Here's what we looked at and why it matters.
       </Text>
 
-      {/* Three pillars */}
-      <Text style={styles.sectionSubtitle}>Three Visibility Pillars</Text>
+      {/* What we measured */}
+      <Text style={styles.sectionSubtitle}>What We Checked</Text>
 
-      <View style={styles.methoGrid}>
-        <View style={[styles.methoCard, { borderTopWidth: 3, borderTopColor: "#0057FF" }]}>
-          <Text style={[styles.methoCardTitle, { color: "#0057FF" }]}>SEO</Text>
-          <Text style={styles.methoCardText}>
-            Traditional search engine optimization — technical health, content
-            quality, crawlability, and link signals that drive organic rankings.
+      <View style={{ marginBottom: 16 }}>
+        {AREAS.map((area, idx) => (
+          <View
+            key={area.name}
+            style={{
+              flexDirection: "row",
+              borderBottomWidth: 1,
+              borderBottomColor: "#E5E7EB",
+              paddingVertical: 8,
+              paddingHorizontal: 6,
+              backgroundColor: idx % 2 === 1 ? "#F9FAFB" : "transparent",
+            }}
+          >
+            <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111827", width: "28%" }}>
+              {area.name}
+            </Text>
+            <Text style={{ fontSize: 9, color: "#374151", width: "72%", lineHeight: 1.5 }}>
+              {area.plain}
+            </Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Three pillars explained simply */}
+      <Text style={styles.sectionSubtitle}>Your Three Scores Explained</Text>
+
+      <View style={{ flexDirection: "row", gap: 10, marginBottom: 16 }}>
+        <View style={{ flex: 1, borderWidth: 1, borderColor: "#BFDBFE", borderRadius: 6, padding: 10, backgroundColor: "#EFF6FF" }}>
+          <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold", color: "#0057FF", marginBottom: 4 }}>
+            SEO
+          </Text>
+          <Text style={{ fontSize: 8, color: "#1E3A8A", lineHeight: 1.5 }}>
+            How well you show up in Google and Bing when people search for what
+            you offer.
           </Text>
         </View>
-        <View style={[styles.methoCard, { borderTopWidth: 3, borderTopColor: "#8B5CF6" }]}>
-          <Text style={[styles.methoCardTitle, { color: "#8B5CF6" }]}>AIO</Text>
-          <Text style={styles.methoCardText}>
-            AI optimization — structured data, schema completeness, and machine
-            readability that help AI models understand and cite your content.
+        <View style={{ flex: 1, borderWidth: 1, borderColor: "#DDD6FE", borderRadius: 6, padding: 10, backgroundColor: "#F5F3FF" }}>
+          <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold", color: "#8B5CF6", marginBottom: 4 }}>
+            AIO
+          </Text>
+          <Text style={{ fontSize: 8, color: "#4C1D95", lineHeight: 1.5 }}>
+            How well AI tools like ChatGPT and Google AI can understand and
+            recommend your business.
           </Text>
         </View>
-        <View style={[styles.methoCard, { borderTopWidth: 3, borderTopColor: "#059669" }]}>
-          <Text style={[styles.methoCardTitle, { color: "#059669" }]}>GEO</Text>
-          <Text style={styles.methoCardText}>
-            Generative engine optimization — content citability, brand signals,
-            and authority markers that influence AI-generated answers.
+        <View style={{ flex: 1, borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 6, padding: 10, backgroundColor: "#ECFDF5" }}>
+          <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold", color: "#059669", marginBottom: 4 }}>
+            GEO
+          </Text>
+          <Text style={{ fontSize: 8, color: "#064E3B", lineHeight: 1.5 }}>
+            How likely AI-generated answers are to mention your business when
+            people ask questions.
           </Text>
         </View>
       </View>
 
-      {/* Six dimensions */}
-      <Text style={styles.sectionSubtitle}>Six Scoring Dimensions</Text>
-
-      <Text style={styles.bodyText}>
-        Each pillar score is computed from weighted contributions of six
-        underlying dimensions:
+      {/* How scoring works */}
+      <Text style={styles.sectionSubtitle}>How Scoring Works</Text>
+      <Text style={[styles.bodyText, { lineHeight: 1.7 }]}>
+        Your overall score (out of 100) combines all three pillar scores. Each
+        check on your website either passes, fails, or gets a warning. Failed
+        checks lower your score based on how important they are. The higher your
+        score, the easier it is for customers to find you online.
       </Text>
 
-      <View style={styles.tableHeader}>
-        <Text style={[styles.tableHeaderCell, { width: "30%" }]}>DIMENSION</Text>
-        <Text style={[styles.tableHeaderCell, { width: "70%" }]}>WHAT IT MEASURES</Text>
-      </View>
-
-      {DIMENSIONS.map((dim, idx) => (
-        <View
-          key={dim.name}
-          style={idx % 2 === 1 ? styles.tableRowAlt : styles.tableRow}
-        >
-          <Text style={[styles.tableCellBold, { width: "30%" }]}>{dim.name}</Text>
-          <Text style={[styles.tableCell, { width: "70%" }]}>{dim.desc}</Text>
+      <View style={{ backgroundColor: "#F3F4F6", borderRadius: 6, padding: 10, marginTop: 10 }}>
+        <View style={{ flexDirection: "row", marginBottom: 4 }}>
+          <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#22C55E", width: "25%" }}>
+            80-100: Excellent
+          </Text>
+          <Text style={{ fontSize: 9, color: "#374151", width: "75%" }}>
+            Your website is well-optimized. Keep it up!
+          </Text>
         </View>
-      ))}
-
-      {/* Scoring weights */}
-      <Text style={[styles.sectionSubtitle, { marginTop: 16 }]}>Scoring</Text>
-      <Text style={styles.bodyText}>
-        Dimensions contribute different weights to each pillar. A single
-        dimension can influence multiple pillars — for example, Content Quality
-        impacts SEO, AIO, and GEO. The overall score is the weighted average
-        of all three pillar scores.
-      </Text>
-
-      {/* Engine credits */}
-      <Text style={styles.sectionSubtitle}>Audit Engines</Text>
-      <View style={styles.tableHeader}>
-        <Text style={[styles.tableHeaderCell, { width: "25%" }]}>ENGINE</Text>
-        <Text style={[styles.tableHeaderCell, { width: "75%" }]}>ROLE</Text>
-      </View>
-      {ENGINES.map((eng, idx) => (
-        <View
-          key={eng.name}
-          style={idx % 2 === 1 ? styles.tableRowAlt : styles.tableRow}
-        >
-          <Text style={[styles.tableCellBold, { width: "25%" }]}>{eng.name}</Text>
-          <Text style={[styles.tableCell, { width: "75%" }]}>{eng.role}</Text>
+        <View style={{ flexDirection: "row", marginBottom: 4 }}>
+          <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#0057FF", width: "25%" }}>
+            60-79: Good
+          </Text>
+          <Text style={{ fontSize: 9, color: "#374151", width: "75%" }}>
+            Solid foundation with room to improve.
+          </Text>
         </View>
-      ))}
+        <View style={{ flexDirection: "row", marginBottom: 4 }}>
+          <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#F59E0B", width: "25%" }}>
+            40-59: Needs Work
+          </Text>
+          <Text style={{ fontSize: 9, color: "#374151", width: "75%" }}>
+            Significant gaps that are costing you customers.
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#EF4444", width: "25%" }}>
+            0-39: Critical
+          </Text>
+          <Text style={{ fontSize: 9, color: "#374151", width: "75%" }}>
+            Major issues — customers can't find you online.
+          </Text>
+        </View>
+      </View>
 
       <Text
         style={styles.pageNumber}
@@ -98,44 +125,29 @@ export function MethodologyPage() {
   );
 }
 
-const DIMENSIONS = [
+const AREAS = [
   {
-    name: "Technical Foundation",
-    desc: "Title tags, meta descriptions, H1 structure, canonical URLs, internal linking, HTTPS, sitemaps, robots.txt",
+    name: "Technical Setup",
+    plain: "Can search engines find and read all your pages? Covers things like page titles, descriptions, links between pages, and sitemaps.",
   },
   {
     name: "Content Quality",
-    desc: "Word count, readability, keyword placement, content depth, AI readability scoring",
+    plain: "Is your content helpful, well-written, and targeting the right topics? We check readability, keyword usage, and depth of information.",
   },
   {
-    name: "Schema & Structure",
-    desc: "JSON-LD structured data, Open Graph tags, schema type coverage, completeness and validity",
+    name: "Data Tags",
+    plain: "Does your website include the hidden labels that help Google show rich results (stars, prices, hours) in search?",
   },
   {
-    name: "AI Engine Readiness",
-    desc: "Machine-parseable content, AI crawler accessibility, citation-ready formatting, answer-box eligibility",
+    name: "AI Visibility",
+    plain: "Can AI tools like ChatGPT read your content and recommend your business when people ask questions?",
   },
   {
-    name: "Performance & Security",
-    desc: "Core Web Vitals (LCP, CLS, INP), image optimization, HTTPS enforcement, security headers",
+    name: "Speed & Security",
+    plain: "Does your site load fast and keep visitor data safe? Slow sites lose visitors and rank lower.",
   },
   {
-    name: "Trust & Authority",
-    desc: "Brand signals, backlink indicators, domain trust markers, knowledge panel eligibility",
-  },
-];
-
-const ENGINES = [
-  {
-    name: "SEOmator",
-    role: "251-rule technical crawler covering 21 SEO categories with Core Web Vitals measurement",
-  },
-  {
-    name: "RescueAudit",
-    role: "AI-focused analysis engine evaluating content quality, schema, and AI readiness signals",
-  },
-  {
-    name: "NativePort",
-    role: "Cross-page intelligence engine detecting cannibalization, schema drift, and topical gaps",
+    name: "Trust & Reputation",
+    plain: "Does your website look trustworthy to search engines? Covers brand signals and authority indicators.",
   },
 ];
