@@ -32,14 +32,15 @@ export function AuditProgress({ status, progress, error, onRetry }: Props) {
     );
   }
 
+  const progressStr = typeof progress === "string" ? progress.toLowerCase() : "";
   const currentStep =
     status === "submitting"
       ? 0
-      : progress?.toLowerCase().includes("seo")
+      : progressStr.includes("seo")
         ? 1
-        : progress?.toLowerCase().includes("ai")
+        : progressStr.includes("ai")
           ? 2
-          : progress?.toLowerCase().includes("scor")
+          : progressStr.includes("scor")
             ? 3
             : 1;
 
@@ -56,8 +57,8 @@ export function AuditProgress({ status, progress, error, onRetry }: Props) {
           </p>
         ))}
       </div>
-      {progress && (
-        <p className="mt-4 text-xs text-gray-400">{progress}</p>
+      {progressStr && (
+        <p className="mt-4 text-xs text-gray-400">{progressStr}</p>
       )}
     </div>
   );
