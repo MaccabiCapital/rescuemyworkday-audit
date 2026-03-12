@@ -12,8 +12,10 @@ export function HeroInput({ onSubmit, disabled }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = url.trim();
-    if (trimmed) onSubmit(trimmed);
+    let trimmed = url.trim();
+    if (!trimmed) return;
+    if (!trimmed.match(/^https?:\/\//i)) trimmed = "https://" + trimmed;
+    onSubmit(trimmed);
   };
 
   return (
@@ -28,7 +30,7 @@ export function HeroInput({ onSubmit, disabled }: Props) {
 
       <form onSubmit={handleSubmit} className="w-full max-w-xl flex gap-2">
         <input
-          type="url"
+          type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Enter website URL..."
