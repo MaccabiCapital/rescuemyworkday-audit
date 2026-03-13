@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { BusinessImpact, UnifiedAuditResult } from "./types";
 import {
-  Users,
   ShoppingCart,
   ChevronDown,
   Info,
@@ -106,47 +105,6 @@ export function BusinessImpactSection({ impact, result }: Props) {
           <Info className="w-3 h-3" />
           Estimates based on industry averages. Actual results vary by niche, competition, and implementation quality.
         </p>
-      </div>
-
-      {/* Header for keyword details */}
-      <div>
-        <h3
-          className="text-lg font-bold tracking-tight"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Customers You're Losing
-        </h3>
-        <p className="text-sm text-gray-500 mt-1">
-          People searching for your services but clicking competitors
-        </p>
-      </div>
-
-      {/* Visitor stats row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Users className="w-4 h-4 text-blue-600" />
-            <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">
-              Missed Visitors
-            </span>
-          </div>
-          <p className="text-2xl font-bold text-blue-900">
-            {formatNumber(impact.missedVisitors)}
-            <span className="text-sm font-normal text-blue-600">/mo</span>
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <ShoppingCart className="w-4 h-4 text-red-600" />
-            <span className="text-xs font-medium text-red-600 uppercase tracking-wider">
-              Missed Sales
-            </span>
-          </div>
-          <p className="text-2xl font-bold text-red-900">
-            {formatNumber(impact.missedSales)}
-            <span className="text-sm font-normal text-red-600">/mo</span>
-          </p>
-        </div>
       </div>
 
       {/* Top missed keywords table */}

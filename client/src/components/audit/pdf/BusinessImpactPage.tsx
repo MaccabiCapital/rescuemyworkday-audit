@@ -91,50 +91,6 @@ export function BusinessImpactPage({ impact, result }: Props) {
         </View>
       </View>
 
-      {/* Visitor stats row */}
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 10,
-          marginBottom: 16,
-        }}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#EFF6FF",
-            borderRadius: 6,
-            padding: 12,
-            borderWidth: 1,
-            borderColor: "#BFDBFE",
-          }}
-        >
-          <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: "#1E40AF", marginBottom: 4 }}>
-            MISSED VISITORS
-          </Text>
-          <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: "#1E3A8A" }}>
-            {fmtNum(impact.missedVisitors)}/mo
-          </Text>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#FEF2F2",
-            borderRadius: 6,
-            padding: 12,
-            borderWidth: 1,
-            borderColor: "#FECACA",
-          }}
-        >
-          <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: "#991B1B", marginBottom: 4 }}>
-            MISSED SALES
-          </Text>
-          <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: "#DC2626" }}>
-            {fmtNum(impact.missedSales)}/mo
-          </Text>
-        </View>
-      </View>
-
       {/* Top missed keywords */}
       {hasKeywords && (
         <View>
