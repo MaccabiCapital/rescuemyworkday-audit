@@ -94,7 +94,7 @@ export default function AuditResultsV2({ result }: Props) {
                 onDownloadPdf={handleDownloadPdf}
               />
               {result.businessImpact && (
-                <BusinessImpactSection impact={result.businessImpact} />
+                <BusinessImpactSection impact={result.businessImpact} result={result} />
               )}
               <PillarCards result={result} />
               <DimensionBreakdown result={result} />

@@ -23,7 +23,7 @@ export function AuditPdfDocument({ result, actionPlan }: Props) {
     >
       <CoverPage result={result} />
       {result.businessImpact && (
-        <BusinessImpactPage impact={result.businessImpact} />
+        <BusinessImpactPage impact={result.businessImpact} result={result} />
       )}
       <ExecutiveSummaryPage result={result} />
       <DimensionScorecardPage result={result} />

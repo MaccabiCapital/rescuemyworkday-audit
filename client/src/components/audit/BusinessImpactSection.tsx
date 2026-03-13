@@ -1,15 +1,19 @@
 import { useState } from "react";
-import type { BusinessImpact } from "./types";
+import type { BusinessImpact, UnifiedAuditResult } from "./types";
 import {
   Users,
   ShoppingCart,
   ChevronDown,
   Info,
   AlertTriangle,
+  Target,
+  TrendingUp,
+  AlertCircle,
 } from "lucide-react";
 
 interface Props {
   impact: BusinessImpact;
+  result: UnifiedAuditResult;
 }
 
 function formatNumber(value: number): string {
@@ -18,57 +22,129 @@ function formatNumber(value: number): string {
   return value.toLocaleString();
 }
 
-export function BusinessImpactSection({ impact }: Props) {
+export function BusinessImpactSection({ impact, result }: Props) {
   const [showMethodology, setShowMethodology] = useState(false);
+
+  // Calculate points lost from failing signals
+  const rescue = result.raw?.rescue;
+  let pointsLost = 0;
+  let failingCount = 0;
+  if (rescue?.categories) {
+    for (const cat of rescue.categories) {
+      for (const sig of cat.signals || []) {
+        if (sig.status === "fail") {
+          pointsLost += sig.maxPoints - sig.points;
+          failingCount++;
+        }
+      }
+    }
+  }
+
+  // Scale points lost to /100 and calculate potential score
+  const maxScore = rescue?.maxScore || 100;
+  const scaledPointsLost = Math.round((pointsLost / maxScore) * 100);
+  const potentialScore = Math.min(result.score.overall + scaledPointsLost, 100);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Business Impact Summary bar */}
+      <div className="bg-gray-900 rounded-xl p-5 text-white">
+        <h3
+          className="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          <TrendingUp className="w-5 h-5 text-blue-400" />
+          Business Impact Summary
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Points Lost */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <AlertCircle className="w-4 h-4 text-red-400" />
+              <span className="text-xs font-medium text-red-300 uppercase tracking-wider">
+                Points Lost
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-white">{scaledPointsLost}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              from {failingCount} failing signal{failingCount !== 1 ? "s" : ""}
+            </p>
+          </div>
+
+          {/* Potential Score */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Target className="w-4 h-4 text-green-400" />
+              <span className="text-xs font-medium text-green-300 uppercase tracking-wider">
+                Potential Score
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-green-400">{potentialScore}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              if all issues are fixed
+            </p>
+          </div>
+
+          {/* Est. Monthly Value (from keyword CPC) */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <ShoppingCart className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-medium text-amber-300 uppercase tracking-wider">
+                Missed Sales
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-amber-400">
+              {formatNumber(impact.missedSales)}
+              <span className="text-sm font-normal text-amber-300">/mo</span>
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              potential customers going to competitors
+            </p>
+          </div>
+        </div>
+        <p className="text-[10px] text-gray-500 mt-3 flex items-center gap-1">
+          <Info className="w-3 h-3" />
+          Estimates based on industry averages. Actual results vary by niche, competition, and implementation quality.
+        </p>
+      </div>
+
+      {/* Header for keyword details */}
       <div>
         <h3
           className="text-lg font-bold tracking-tight"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Business Impact
+          Customers You're Losing
         </h3>
         <p className="text-sm text-gray-500 mt-1">
-          Customers you're losing to competitors every month
+          People searching for your services but clicking competitors
         </p>
       </div>
 
-      {/* Big numbers */}
+      {/* Visitor stats row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Missed Visitors */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-4 h-4 text-blue-600" />
             <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">
               Missed Visitors
             </span>
           </div>
-          <p className="text-3xl font-bold text-blue-900">
+          <p className="text-2xl font-bold text-blue-900">
             {formatNumber(impact.missedVisitors)}
             <span className="text-sm font-normal text-blue-600">/mo</span>
           </p>
-          <p className="text-xs text-blue-600 mt-1">
-            People searching for your services but clicking competitors
-          </p>
         </div>
-
-        {/* Missed Sales */}
-        <div className="bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1">
             <ShoppingCart className="w-4 h-4 text-red-600" />
             <span className="text-xs font-medium text-red-600 uppercase tracking-wider">
               Missed Sales
             </span>
           </div>
-          <p className="text-3xl font-bold text-red-900">
+          <p className="text-2xl font-bold text-red-900">
             {formatNumber(impact.missedSales)}
             <span className="text-sm font-normal text-red-600">/mo</span>
-          </p>
-          <p className="text-xs text-red-600 mt-1">
-            Potential customers going to competitors instead of you
           </p>
         </div>
       </div>

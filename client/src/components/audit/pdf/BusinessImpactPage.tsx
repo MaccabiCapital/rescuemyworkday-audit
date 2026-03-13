@@ -1,9 +1,10 @@
 import { Page, View, Text } from "@react-pdf/renderer";
-import type { BusinessImpact } from "../types";
+import type { BusinessImpact, UnifiedAuditResult } from "../types";
 import { styles } from "./pdf-styles";
 
 interface Props {
   impact: BusinessImpact;
+  result: UnifiedAuditResult;
 }
 
 function fmtNum(value: number): string {
@@ -12,9 +13,26 @@ function fmtNum(value: number): string {
   return value.toLocaleString();
 }
 
-export function BusinessImpactPage({ impact }: Props) {
-  const annualSales = impact.missedSales * 12;
+export function BusinessImpactPage({ impact, result }: Props) {
   const hasKeywords = impact.topMissedKeywords.length > 0;
+
+  // Calculate points lost from failing signals
+  const rescue = result.raw?.rescue;
+  let pointsLost = 0;
+  let failingCount = 0;
+  if (rescue?.categories) {
+    for (const cat of rescue.categories) {
+      for (const sig of cat.signals || []) {
+        if (sig.status === "fail") {
+          pointsLost += sig.maxPoints - sig.points;
+          failingCount++;
+        }
+      }
+    }
+  }
+  const maxScore = rescue?.maxScore || 100;
+  const scaledPointsLost = Math.round((pointsLost / maxScore) * 100);
+  const potentialScore = Math.min(result.score.overall + scaledPointsLost, 100);
 
   return (
     <Page size="A4" style={styles.page}>
@@ -27,61 +45,53 @@ export function BusinessImpactPage({ impact }: Props) {
         competitors instead. Here's what you're missing out on right now.
       </Text>
 
-      {/* Big sales number */}
+      {/* Summary bar */}
       <View
         style={{
-          backgroundColor: "#FEF2F2",
+          backgroundColor: "#111827",
           borderRadius: 8,
-          padding: 20,
-          marginBottom: 12,
-          borderWidth: 2,
-          borderColor: "#FECACA",
-          alignItems: "center",
+          padding: 16,
+          marginBottom: 16,
+          flexDirection: "row",
+          gap: 12,
         }}
       >
-        <Text
-          style={{
-            fontSize: 8,
-            fontFamily: "Helvetica-Bold",
-            color: "#991B1B",
-            marginBottom: 6,
-            textTransform: "uppercase",
-            letterSpacing: 1,
-          }}
-        >
-          Sales You're Missing
-        </Text>
-        <Text
-          style={{
-            fontSize: 32,
-            fontFamily: "Helvetica-Bold",
-            color: "#DC2626",
-          }}
-        >
-          {fmtNum(impact.missedSales)} /month
-        </Text>
-        <Text
-          style={{
-            fontSize: 12,
-            color: "#991B1B",
-            marginTop: 4,
-          }}
-        >
-          That's approximately {fmtNum(annualSales)} sales per year
-        </Text>
-        <Text
-          style={{
-            fontSize: 8,
-            color: "#B91C1C",
-            marginTop: 8,
-            fontStyle: "italic",
-          }}
-        >
-          Based on {impact.assumptions.industry} industry conversion rates ({(impact.assumptions.conversionRate * 100).toFixed(1)}%)
-        </Text>
+        <View style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 6, padding: 10 }}>
+          <Text style={{ fontSize: 7, fontFamily: "Helvetica-Bold", color: "#FCA5A5", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+            Points Lost
+          </Text>
+          <Text style={{ fontSize: 22, fontFamily: "Helvetica-Bold", color: "#FFFFFF" }}>
+            {scaledPointsLost}
+          </Text>
+          <Text style={{ fontSize: 7, color: "#9CA3AF", marginTop: 2 }}>
+            from {failingCount} failing signals
+          </Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 6, padding: 10 }}>
+          <Text style={{ fontSize: 7, fontFamily: "Helvetica-Bold", color: "#86EFAC", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+            Potential Score
+          </Text>
+          <Text style={{ fontSize: 22, fontFamily: "Helvetica-Bold", color: "#4ADE80" }}>
+            {potentialScore}
+          </Text>
+          <Text style={{ fontSize: 7, color: "#9CA3AF", marginTop: 2 }}>
+            if all issues are fixed
+          </Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 6, padding: 10 }}>
+          <Text style={{ fontSize: 7, fontFamily: "Helvetica-Bold", color: "#FCD34D", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+            Missed Sales
+          </Text>
+          <Text style={{ fontSize: 22, fontFamily: "Helvetica-Bold", color: "#FBBF24" }}>
+            {fmtNum(impact.missedSales)}/mo
+          </Text>
+          <Text style={{ fontSize: 7, color: "#9CA3AF", marginTop: 2 }}>
+            customers going to competitors
+          </Text>
+        </View>
       </View>
 
-      {/* How we got this number */}
+      {/* Visitor stats row */}
       <View
         style={{
           flexDirection: "row",
@@ -100,30 +110,27 @@ export function BusinessImpactPage({ impact }: Props) {
           }}
         >
           <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: "#1E40AF", marginBottom: 4 }}>
-            MISSED WEBSITE VISITORS
+            MISSED VISITORS
           </Text>
-          <Text style={{ fontSize: 9, color: "#1E3A8A", lineHeight: 1.5 }}>
-            {fmtNum(impact.missedVisitors)} people search for your services every
-            month but click on competitors ranking above you.
+          <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: "#1E3A8A" }}>
+            {fmtNum(impact.missedVisitors)}/mo
           </Text>
         </View>
         <View
           style={{
             flex: 1,
-            backgroundColor: "#FFFBEB",
+            backgroundColor: "#FEF2F2",
             borderRadius: 6,
             padding: 12,
             borderWidth: 1,
-            borderColor: "#FDE68A",
+            borderColor: "#FECACA",
           }}
         >
-          <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: "#92400E", marginBottom: 4 }}>
-            HOW WE ESTIMATED SALES
+          <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: "#991B1B", marginBottom: 4 }}>
+            MISSED SALES
           </Text>
-          <Text style={{ fontSize: 9, color: "#78350F", lineHeight: 1.5 }}>
-            We applied a {(impact.assumptions.conversionRate * 100).toFixed(1)}%
-            conversion rate typical for {impact.assumptions.industry} businesses
-            to calculate missed sales from those visitors.
+          <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: "#DC2626" }}>
+            {fmtNum(impact.missedSales)}/mo
           </Text>
         </View>
       </View>
